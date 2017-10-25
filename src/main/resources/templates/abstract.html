@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1" />
+<title>Pubmine - Abstract</title>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.css"/>
+<script src="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"></script>
+</head>
+
+<body>
+	<div class="ui stackable menu">
+		<div class="item">
+			<img style="height: 30px; width: 30px;"
+				th:src="@{https://semantic-ui.com/images/logo.png}" />
+		</div>
+		<a href="/" class="item" id="thymeleaf">Pubmine</a>
+	</div>
+
+	<div class="ui container">
+		<div class="ui stacked segment" id="abstract">
+			<h2 class="ui header">ABSTRACT</h2>
+		</div>
+	</div>
+	
+	<script th:inline="javascript">
+		(function(){
+			
+			/*<![CDATA[*/
+	  	    var pmid = /*[[${pmid}]]*/ 0;
+	  	   	/*]]>*/
+	  	   	
+			$.ajax({
+				url: `/pubmine/v1/abstract/${pmid}`,
+				method: 'GET',
+				success: function(response){
+					console.log(response);
+					var str = ``;
+					response.forEach(function(abs){
+						if(abs.label!=null)
+							str += `<h5>${abs.label}</h5>`;
+						str+= `<p>${abs.text}</p>`;
+					});
+					$('#abstract').append(str);
+				},
+				error: function(error){
+					console.log(error);
+				}
+			});
+		})();
+	</script>
+</body>
+</html>

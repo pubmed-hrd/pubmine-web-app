@@ -1,17 +1,51 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="ISO-8859-1" />
-<title>Pubmine - Lucene</title>
+<meta charset="utf-8" />
+<title>Pubmine - Sentence</title>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.css" />
 <script src="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"></script>
 
-
 <script src="/css/jquery.bootpag.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+
+<style>
+	a{
+		color:#000;
+	}
+	.highlight{
+		background-color: red;
+	}
+	.ui.styled.accordion, .ui.styled.accordion .accordion{
+		box-shadow: none;
+	}
+	.ui.styled.accordion .accordion .title, .ui.styled.accordion .title{
+		padding: 0;
+	}
+	.ui.styled.accordion .accordion .content, .ui.styled.accordion .content{
+		padding: 0px 0px 0px 5px;
+	}
+	.ui.styled.accordion .accordion .title, .ui.styled.accordion .title{
+		color: #000;
+	}
+	.content p{
+		padding: 5px 5px 0px 15px;
+	}
+	.ui.styled.accordion{
+		width: auto;
+	}
+	.ui.styled.accordion .accordion .title, .ui.styled.accordion .title{
+	    font-size: 1em;
+    	font-weight: normal;
+	}
+	.ui.info.message{
+		color: #000;
+		background-color: #fff;
+	}
+</style>
 
 </head>
 <body>
@@ -33,23 +67,13 @@
 				<tr>
 					<th>Pmid</th>
 					<th>Sentence</th>
-					<th>Sentence Order</th>
-					<th>Abstract Text Order</th>
 				</tr>
 			</thead>
-			<tbody></tbody>			
+			<tbody>
+			</tbody>			
 			<tfoot>
 				 <tr>
-				 	<th colspan="5">
-				      <!-- <div class="ui small right floated pagination menu">
-				        <a class="icon item" title="First"><i class="left long arrow icon"></i></a>
-				        <a class="item">Previous</a>
-				        <a class="item active">1</a>
-				        <a class="item">2</a>
-				        <a class="item">3</a>
-				        <a class="item">Next</a>
-				        <a class="icon item" title="Last"><i class="right long arrow icon"></i></a>
-				      </div> -->				      
+				 	<th colspan="5">			      
 				      <div id="pagination" style="float:right"></div>
 				    </th>
 				  </tr>
@@ -83,7 +107,7 @@
 					data: filter,
 					method: 'GET',
 					success: function(data){
-						console.log(data);
+						//console.log(data);
 						renderSentence(data.data);
 						renderPagination(data.pagable);
 					},
@@ -115,21 +139,84 @@
 			function renderSentence(sentences){
 				var tbody = ``;
 				sentences.forEach(function(sentence){
-					console.log(sentence);
-					tbody += `<tr id="sen${sentence.pmid}" onClick="test()">
-								<td>${sentence.pmid}</td>
-								<td>${sentence.sentence}</td>
-								<td>${sentence.sentenceOrder}</td>
-								<td>${sentence.abstractTextOrder}</td>
-							 </tr>`;	
+					
+					tbody += `<tr>
+							 	<td><a href="https://www.ncbi.nlm.nih.gov/pubmed/${sentence.pmid}" target="_blank">${sentence.pmid}</a></td>
+								<td><div class="ui styled accordion">
+								  <div class="title">
+								    	<i class="dropdown icon" id="${sentence.pmid}"></i><span>${sentence.sentence}</span>
+								  </div>
+								  <div class="content">
+										<div class="ui segment">
+										  <div class="ui active inverted dimmer">
+										    <div class="ui text loader">Loading</div>
+										  </div>
+										</div>
+								  </div>
+								</div>
+								</td>
+							</tr>`;
 				});
+				
 				$('tbody').html(tbody);
+				
+				//TODO:
+				$('.ui.accordion').accordion();
+				
+				$('div.title').on('click', function(){
+					console.log($(this));
+					var pmid = $(this)[0].firstElementChild.id;
+					findAbstract(pmid, $(this).next());
+				});
 			}
 			
+			
+			//TODO:
+			function findAbstract(pmid, self){
+				$.ajax({
+					url: `/pubmine/v1/abstract/${pmid}`,
+					method: 'GET',
+					success: function(response){
+						var str = ``;
+						response.forEach(function(abs){
+							if(abs.label!=null)
+								str += `<h5>${abs.label}</h5>`;
+							str+= `<p>${abs.text}</p>`;
+						});
+						
+						var abs = `<div class="ui info message">
+										<h3>ABSTRACT</h3>
+							 			<div class="transition visible" style="display: block !important;">${str}</div>
+								   </div>`;
+					
+						$(self).html(abs);
+					},
+					error: function(error){
+						console.log(error);
+					}
+				});
+			}
+			
+			//TODO:
+			function highlightText(query){
+				if(query){
+					var content = $("p").text();
+					var searchExp = new RegExp(query, "ig");
+					var matches = content.match(searchExp);
+					console.log(matches);
+					
+					if(matches){
+						$("p").html(content.replace(searchExp, function(match){
+							return `<span class='highlight'>${match}</span>`;
+						}));
+					}
+				}	
+			}
+			
+			//TODO: triger search on page load
+			searchSentence(filter);
 		})();
-		function test(){
-			console.log(this);
-		}
+		
 	</script>
 </body>
 </html>
