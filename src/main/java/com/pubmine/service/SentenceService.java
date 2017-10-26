@@ -48,8 +48,7 @@ public class SentenceService {
 
 			Query query;
 			try {
-				System.out.println("Query: " + searchQuery);
-				System.out.println(String.format("%s %s %s", "".equals(searchQuery), ""==searchQuery, null==searchQuery));
+				System.out.println("-> Search Query: " + searchQuery);
 				
 				if(searchQuery.equals(""))
 					query = new MatchAllDocsQuery();
@@ -62,7 +61,7 @@ public class SentenceService {
 				//ScoreDoc[] hits = collector.topDocs().scoreDocs;
 				ScoreDoc[] hits = collector.topDocs(paging.getOffset(), paging.getLimit()).scoreDocs;
 
-				System.out.println("Total results: " + collector.getTotalHits());
+				System.out.println("-> Total results: " + collector.getTotalHits());
 				List<Sentence> sentences = new ArrayList<>();
 
 				for (int i = 0; i < hits.length; i++) {
@@ -75,6 +74,7 @@ public class SentenceService {
 					
 					sentences.add(new Sentence(sentence, pmid, sentenceOrder, abstractTextOrder));
 				}
+				
 				paging.setTotalCount(collector.getTotalHits());
 				
 				reader.close();

@@ -1,6 +1,8 @@
 package com.pubmine.rest;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +30,17 @@ public class SentenceRestController {
 	public PagableResponse findAll(Pagable pagable, SentenceFilter filter){
 		
 		System.out.println(String.format("%s, %s", pagable, filter));
-		List<Sentence> sentences = sentenceService.search(filter.getQuery(), pagable);
 		
-		return new PagableResponse(sentences, pagable);
+		long startTime = System.currentTimeMillis();
+		List<Sentence> sentences = sentenceService.search(filter.getQuery(), pagable);
+		double duration = (System.currentTimeMillis() - startTime ) * Math.pow(10, -3);
+		System.out.println(String.format("->Search Duration: %s Seconds.", duration));
+		
+		Map<String, Object> param = new HashMap<>();
+		param.put("data", sentences);
+		param.put("search_duration", duration);
+		
+		return new PagableResponse(param, pagable);
 	}
 	
 }

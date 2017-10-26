@@ -11,53 +11,7 @@
 <script src="/css/jquery.bootpag.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
-
-<style>
-	a{
-		color:#000;
-	}
-	.highlight-keyword{
-		border-radius: 2px;
-    	padding: 0px 2px 0px 2px;
-		/* background-color: #00796B; */
-    	/* color: #fff; */
-		/* text-decoration: underline; */ 
-    	color:red;
-	}
-	.highlight-sentence{
-		color: #fff;
-		background-color: #2E7D32;
-		border-radius: 2px;
-    	padding: 0px 2px 1px 2px;
-    	/* text-decoration: underline; */
-	}
-	.ui.styled.accordion, .ui.styled.accordion .accordion{
-		box-shadow: none;
-	}
-	.ui.styled.accordion .accordion .title, .ui.styled.accordion .title{
-		padding: 0;
-	}
-	.ui.styled.accordion .accordion .content, .ui.styled.accordion .content{
-		padding: 0px 0px 0px 5px;
-	}
-	.ui.styled.accordion .accordion .title, .ui.styled.accordion .title{
-		color: #000;
-	}
-	.content p{
-		padding: 5px 5px 0px 15px;
-	}
-	.ui.styled.accordion{
-		width: auto;
-	}
-	.ui.styled.accordion .accordion .title, .ui.styled.accordion .title{
-	    font-size: 1em;
-    	font-weight: normal;
-	}
-	.ui.info.message{
-		color: #000;
-		background-color: #fff;
-	}
-</style>
+<link rel="stylesheet" href="/css/index.css"/>
 
 </head>
 <body>
@@ -74,6 +28,11 @@
 			<input type="text" placeholder="Search here..." id="txtSearch"/> <i
 				class="search icon"></i>
 		</div>
+		<div class="ui info message">
+ 			<div id="summaryResult" class="transition visible" style="display: block !important;">
+ 				
+ 			</div>
+	   </div>
 		<table class="ui very basic table">
 			<thead>
 				<tr>
@@ -119,8 +78,12 @@
 					data: filter,
 					method: 'GET',
 					success: function(data){
-						renderSentence(data.data);
+						console.log(data);
+						renderSentence(data.data.data);
 						renderPagination(data.pagable);
+						
+						//TODO:
+						renderSummaryResult(data.pagable.totalCount, data.data.search_duration);
 						
 						//TODO:
 						highlightText(filter.query);
@@ -255,6 +218,17 @@
 					});	
 				}	
 			}
+			
+			function renderSummaryResult(sentences, duration){
+				sentences = formatNumber(sentences);
+				var str = `<p>Results: ${sentences} Sentences (${duration} Seconds)</p>`;
+				$("#summaryResult").html(str);
+			} 
+			
+			function formatNumber(num) {
+			    return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
+			}
+
 			
 			//TODO: triger search on page load
 			searchSentence(filter);

@@ -1,0 +1,55 @@
+a {
+	color: #000;
+}
+
+.highlight-keyword {
+	border-radius: 2px;
+	padding: 0px 2px 0px 2px;
+	/* background-color: #00796B; */
+	/* color: #fff; */
+	/* text-decoration: underline; */
+	color: red;
+}
+
+.highlight-sentence {
+	color: #fff;
+	background-color: #2E7D32;
+	border-radius: 2px;
+	padding: 0px 2px 1px 2px;
+	/* text-decoration: underline; */
+}
+
+.ui.styled.accordion, .ui.styled.accordion .accordion {
+	box-shadow: none;
+}
+
+.ui.styled.accordion .accordion .title, .ui.styled.accordion .title {
+	padding: 0;
+}
+
+.ui.styled.accordion .accordion .content, .ui.styled.accordion .content
+	{
+	padding: 0px 0px 0px 5px;
+}
+
+.ui.styled.accordion .accordion .title, .ui.styled.accordion .title {
+	color: #000;
+}
+
+.content p {
+	padding: 5px 5px 0px 15px;
+}
+
+.ui.styled.accordion {
+	width: auto;
+}
+
+.ui.styled.accordion .accordion .title, .ui.styled.accordion .title {
+	font-size: 1em;
+	font-weight: normal;
+}
+
+.ui.info.message {
+	color: #000;
+	background-color: #fff;
+}
