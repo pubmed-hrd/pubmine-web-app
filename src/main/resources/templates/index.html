@@ -16,8 +16,20 @@
 	a{
 		color:#000;
 	}
-	.highlight{
-		background-color: red;
+	.highlight-keyword{
+		border-radius: 2px;
+    	padding: 0px 2px 0px 2px;
+		/* background-color: #00796B; */
+    	/* color: #fff; */
+		/* text-decoration: underline; */ 
+    	color:red;
+	}
+	.highlight-sentence{
+		color: #fff;
+		background-color: #2E7D32;
+		border-radius: 2px;
+    	padding: 0px 2px 1px 2px;
+    	/* text-decoration: underline; */
 	}
 	.ui.styled.accordion, .ui.styled.accordion .accordion{
 		box-shadow: none;
@@ -54,7 +66,7 @@
 			<img style="height: 30px; width: 30px;"
 				th:src="@{https://semantic-ui.com/images/logo.png}" />
 		</div>
-		<a href="#" class="item" id="thymeleaf">Pubmine</a>
+		<a href="/" class="item">Pubmine</a>
 	</div>
 	
 	<div class="ui container-fluid">
@@ -62,7 +74,7 @@
 			<input type="text" placeholder="Search here..." id="txtSearch"/> <i
 				class="search icon"></i>
 		</div>
-		<table class="ui padded table">
+		<table class="ui very basic table">
 			<thead>
 				<tr>
 					<th>Pmid</th>
@@ -87,7 +99,7 @@
 			
 			var filter = {
 				page: 1,
-				limit: 10,
+				limit: 15,
 				query: ''	
 			};
 			
@@ -107,9 +119,11 @@
 					data: filter,
 					method: 'GET',
 					success: function(data){
-						//console.log(data);
 						renderSentence(data.data);
 						renderPagination(data.pagable);
+						
+						//TODO:
+						highlightText(filter.query);
 					},
 					error: function(error){
 						console.log(error);
@@ -139,12 +153,11 @@
 			function renderSentence(sentences){
 				var tbody = ``;
 				sentences.forEach(function(sentence){
-					
 					tbody += `<tr>
 							 	<td><a href="https://www.ncbi.nlm.nih.gov/pubmed/${sentence.pmid}" target="_blank">${sentence.pmid}</a></td>
 								<td><div class="ui styled accordion">
 								  <div class="title">
-								    	<i class="dropdown icon" id="${sentence.pmid}"></i><span>${sentence.sentence}</span>
+								    	<i class="dropdown icon" id="${sentence.pmid}"></i><span class='stitle'>${sentence.sentence}</span>
 								  </div>
 								  <div class="content">
 										<div class="ui segment">
@@ -163,13 +176,12 @@
 				//TODO:
 				$('.ui.accordion').accordion();
 				
+				//TODO:
 				$('div.title').on('click', function(){
-					console.log($(this));
 					var pmid = $(this)[0].firstElementChild.id;
-					findAbstract(pmid, $(this).next());
+					findAbstract(pmid, $(this));
 				});
 			}
-			
 			
 			//TODO:
 			function findAbstract(pmid, self){
@@ -189,7 +201,10 @@
 							 			<div class="transition visible" style="display: block !important;">${str}</div>
 								   </div>`;
 					
-						$(self).html(abs);
+						$(self).next().html(abs);
+						
+						//TODO:
+						highlightContent(self);
 					},
 					error: function(error){
 						console.log(error);
@@ -198,18 +213,46 @@
 			}
 			
 			//TODO:
+			function highlightContent(self){
+					var titleQuery = $(self).find('span.stitle').text();
+					
+					//TODO: escape special character
+					titleQuery = titleQuery.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+					
+					var $contentDiv = $(self).next().find('div.transition p');
+					
+					$contentDiv.each(function(idx, $content){
+						var content = $($content).text();
+						console.log(content);
+						var searchExp = new RegExp(titleQuery, "ig");
+						console.log(searchExp)
+						var matches = content.match(searchExp);
+						
+						if(matches){
+							$(this).html(content.replace(searchExp, function(match){
+								return `<span class='highlight-sentence'>${match}</span>`;
+							}));
+						}
+					});
+			}
+			
+			//TODO:
 			function highlightText(query){
 				if(query){
-					var content = $("p").text();
-					var searchExp = new RegExp(query, "ig");
-					var matches = content.match(searchExp);
-					console.log(matches);
-					
-					if(matches){
-						$("p").html(content.replace(searchExp, function(match){
-							return `<span class='highlight'>${match}</span>`;
-						}));
-					}
+					//TODO: escape special character
+				
+					$('span.stitle').each(function(idx, $title){
+						var title = $($title).text();
+						
+						var searchExp = new RegExp(query, "ig");
+						var matches = title.match(searchExp);
+
+						if(matches){
+							$(this).html(title.replace(searchExp, function(match){
+								return `<span class='highlight-keyword'>${match}</span>`;
+							}));
+						}
+					});	
 				}	
 			}
 			
